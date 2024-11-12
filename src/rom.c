@@ -148,6 +148,7 @@ int rom_load(const char *filename)
 {
     struct stat st;
 
+    // Open the ROM file in read-only mode
     int fd = open(filename, O_RDONLY);
     if (fd == -1 || fstat(fd, &st) == -1)
     {
@@ -157,6 +158,7 @@ int rom_load(const char *filename)
         return EXIT_FAILURE;
     }
 
+    // Allocate memory for the ROM
     gb_rom.rom_data = malloc(st.st_size);
     if (!gb_rom.rom_data)
     {
@@ -165,6 +167,7 @@ int rom_load(const char *filename)
         return EXIT_FAILURE;
     }
 
+    // Read the ROM data
     ssize_t bytes_read = read(fd, gb_rom.rom_data, st.st_size);
     if (bytes_read != st.st_size)
     {
@@ -174,9 +177,19 @@ int rom_load(const char *filename)
         return EXIT_FAILURE;
     }
 
+    // Initialize ROM structure
     int result = rom_init(gb_rom.rom_data);
 
-    free(gb_rom.rom_data);
     close(fd);
     return result;
+}
+
+unsigned char *rom_getdata(void)
+{
+    return gb_rom.rom_data;
+}
+
+void free_rom(void)
+{
+    free(gb_rom.rom_data);
 }
