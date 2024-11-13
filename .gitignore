@@ -4,9 +4,12 @@ GameBoy.dSYM/Contents/Info.plist
 GameBoy.dSYM/Contents/Resources/Relocations/aarch64/GameBoy.yml
 /roms
 .DS_Store
+<<<<<<< Updated upstream
 GameBoy
 GameBoy
 GameBoy
 /GameBoy.dSYM
 *.gb
 .DS_Store
+=======
+>>>>>>> Stashed changes
