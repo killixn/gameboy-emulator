@@ -42,7 +42,7 @@ int memory_init(void)
     gb_memory->oam = calloc(1, 0xA0); //     Sprite Attribute Table (160 bytes)
     gb_memory->io_regs = calloc(1, 0x80); // I/O registers (128 bytes)
     gb_memory->hram = calloc(1, 0x7F); //    High RAM (127 bytes)
-    gb_memory->ie_reg = malloc(1); //        Interrupt Enable register
+    gb_memory->ie_reg = calloc(1, 1); //        Interrupt Enable register
 
     return EXIT_SUCCESS;
 }
