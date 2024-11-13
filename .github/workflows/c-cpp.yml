@@ -8,12 +8,22 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: install sdl
-      run: git clone https://github.com/libsdl-org/SDL.git -b SDL2 & cd SDL & mkdir build & cd build & ../configure & make & sudo make install
-    - name: make
-      run: make
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SDL2
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y build-essential git autoconf automake libtool pkg-config
+          git clone https://github.com/libsdl-org/SDL.git -b SDL2
+          cd SDL
+          mkdir build && cd build
+          ../configure
+          make
+          sudo make install
+          
+      - name: Compile with make
+        run: make
