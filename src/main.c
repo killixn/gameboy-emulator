@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "memory.h"
 #include "rom.h"
 
 int main(int argc, char *argv[])
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    // Initialize components: CPU, memory, display (LCD), ROM, etc
+    // Load the ROM file into memory
     error_occur = rom_load(argv[1]);
     if (error_occur)
     {
@@ -26,15 +27,29 @@ int main(int argc, char *argv[])
 
     printf("\nROM successfully loaded\n");
 
-    while (1)
+    // Initialize memory components (VRAM, RAM, etc)
+    error_occur = memory_init();
+    if (error_occur)
     {
-        // CPU cycle
-        // Handle interrupts
-        // Update timers
-        // Render display
-        // Process user input
-        return EXIT_SUCCESS;
+        fprintf(stderr, "error: %s: unable to initialize memory\n", argv[1]);
+        return EXIT_FAILURE;
     }
 
+    printf("\nMemory successfully initialized\n");
+
+    while (1)
+    {
+        // Execute a CPU cycle
+        // Handle any pending interrupts
+        // Update internal timers
+        // Render the display (LCD)
+        // Process user input events
+
+        break; // To removed when required
+    }
+
+    // Free allocated memory
+    free_memory();
+    free_rom();
     return EXIT_SUCCESS;
 }

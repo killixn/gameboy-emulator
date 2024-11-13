@@ -18,4 +18,7 @@ struct rom
 int rom_init(unsigned char *rombytes);
 int rom_load(const char *filename);
 
+unsigned char *rom_getdata(void);
+void free_rom(void);
+
 #endif /* !ROM_H */

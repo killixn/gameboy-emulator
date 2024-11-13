@@ -1,9 +1,9 @@
 CC = gcc
 CFLAGS = -Wvla -Wextra -Wall -Werror -g -fsanitize=address
-OBJ = src/main.c src/rom.c 
+OBJ = src/main.c src/rom.c src/memory.c
 
 all:
-	$(CC) $(CFLAGS) -o GameBoy $(OBJ)
+	$(CC) $(CFLAGS) -o gameboy $(OBJ)
 
 clean:
-	rm -rf GameBoy*
+	rm -rf gameboy*
