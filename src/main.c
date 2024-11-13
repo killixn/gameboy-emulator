@@ -8,6 +8,8 @@
 #include "rom.h"
 #include "sdl.h"
 
+struct rom gb_rom;
+
 int main(int argc, char *argv[])
 {
     int error_occur = 0;
