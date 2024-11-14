@@ -13,3 +13,7 @@ GameBoy
 .DS_Store
 =======
 >>>>>>> Stashed changes
+
+compile_commands.json
+
+*.idx
