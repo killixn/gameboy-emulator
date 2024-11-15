@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/_types/_u_int8_t.h>
 
 #include "cpu.h"
 #include "memory.h"
