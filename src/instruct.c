@@ -80,7 +80,10 @@ void or (uint8_t *r, uint16_t value, uint8_t *flags);
 void xor (uint8_t *r, uint16_t value, uint8_t *flags);
 void cp(uint8_t *r, uint16_t value, uint8_t *flags);
 
-// INC n (page 88)
+void add_16(uint16_t *r, uint16_t value, uint8_t *flags);
+void inc_16(uint16_t *r);
+void dec_16(uint16_t *r);
+
 void inc(void *n, uint8_t size, uint8_t *flags)
 {
     if (size == 8)
@@ -134,7 +137,6 @@ void dec(void *n, uint8_t size, uint8_t *flags)
     }
 }
 
->>>>>>> Stashed changes
 // SWAP n (page 94)
 void swap(void *r, uint8_t size, uint8_t *flags)
 {
