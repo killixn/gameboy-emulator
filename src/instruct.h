@@ -30,6 +30,14 @@ void bit(uint8_t b, void *r, uint8_t size, uint8_t *flags);
 void set(uint8_t b, void *r, uint8_t size);
 void res(uint8_t b, void *r, uint8_t size);
 
+void jp(uint16_t *pc);
 void jp_hl(uint16_t *pc, uint16_t *hl);
+void jr(uint16_t *pc);
+
+void call(uint16_t *pc, uint16_t *sp);
+
+void rst(uint8_t opcode, uint16_t *pc, uint16_t *sp);
+
+void ret(uint16_t *pc, uint16_t *sp);
 
 #endif /* !INSTRUCT_H */

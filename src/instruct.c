@@ -1,5 +1,7 @@
 #include "instruct.h"
 
+#include "memory.h"
+
 // LD nn,n (page 65)
 void ld(uint8_t *r, uint16_t value)
 {
@@ -405,27 +407,64 @@ void res(uint8_t b, void *r, uint8_t size)
 }
 
 // JP nn (page 111)
-
 // JP cc,nn (page 111)
+void jp(uint16_t *pc)
+{
+    uint16_t nn = memory_read((*pc)++) | (memory_read((*pc)++) << 8);
+    *pc = nn;
+}
 
-// JP (HL) (page 111)
+// JP (HL) (page 112)
 void jp_hl(uint16_t *pc, uint16_t *hl)
 {
-    *pc = *hl;
+    *pc = *hl; // Jump to address contained in HL
 }
 
 // JR n (page 112)
-
 // JR cc,n (page 113)
+void jr(uint16_t *pc)
+{
+    uint8_t n = (uint8_t)memory_read((*pc)++);
+    *pc += n;
+}
 
 // CALL nn (page 114)
-
 // CALL cc,nn (page 115)
+void call(uint16_t *pc, uint16_t *sp)
+{
+    uint16_t nn = memory_read((*pc)++)
+        | (memory_read((*pc)++) << 8); // Recover LSB, then MSB
+
+    *sp -= 1;
+    memory_write(*sp, (*pc >> 8) & 0xFF); // Store MSB
+
+    *sp -= 1;
+    memory_write(*sp, *pc & 0xFF); // Store LSB
+
+    *pc = nn; // Jump to address nn
+}
 
 // RST n (page 116)
+void rst(uint8_t opcode, uint16_t *pc, uint16_t *sp)
+{
+    *sp -= 1;
+    memory_write(*sp, (*pc >> 8) & 0xFF); // Store MSB
+
+    *sp -= 1;
+    memory_write(*sp, *pc & 0xFF); // Store LSB
+
+    *pc = 0x0000 + (opcode & 0x38);
+}
 
 // RET (page 117)
-
 // RET cc (page 117)
-
 // RETI (page 118)
+void ret(uint16_t *pc, uint16_t *sp)
+{
+    uint8_t lsb = memory_read(*sp); // Store LSB
+    *sp += 1;
+    uint8_t msb = memory_read(*sp); // Store MSB
+    *sp += 1;
+
+    *pc = (msb << 8) | lsb; // Jump to address nn
+}

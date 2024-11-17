@@ -291,49 +291,30 @@ void exec_opcode(uint8_t opcode)
         rr(&cpu_register.AF.reg8.high, 8, &cpu_register.flags_register);
         break;
 
-        // JP nn (page 111)
-    case 0xC3: {
-        uint16_t nn = memory_read(cpu_register.PC.reg16++)
-            | (memory_read(cpu_register.PC.reg16++) << 8);
-        cpu_register.PC.reg16 = nn;
-    }
-    break;
+    // JP nn (page 111)
+    case 0xC3:
+        jp(&cpu_register.PC.reg16);
+        break;
 
     // JP cc, nn (page 113)
     case 0xC2: // JP NZ,nn
         if ((cpu_register.flags_register & 0x80) == 0) // Z flag = 0
-        {
-            uint16_t nn = memory_read(cpu_register.PC.reg16++)
-                | (memory_read(cpu_register.PC.reg16++) << 8);
-            cpu_register.PC.reg16 = nn;
-        }
+            jp(&cpu_register.PC.reg16);
         break;
 
     case 0xCA: // JP Z,nn
         if ((cpu_register.flags_register & 0x80) != 0) // Z flag = 1
-        {
-            uint16_t nn = memory_read(cpu_register.PC.reg16++)
-                | (memory_read(cpu_register.PC.reg16++) << 8);
-            cpu_register.PC.reg16 = nn;
-        }
+            jp(&cpu_register.PC.reg16);
         break;
 
     case 0xD2: // JP NC,nn
         if ((cpu_register.flags_register & 0x10) == 0) // C flag = 0
-        {
-            uint16_t nn = memory_read(cpu_register.PC.reg16++)
-                | (memory_read(cpu_register.PC.reg16++) << 8);
-            cpu_register.PC.reg16 = nn;
-        }
+            jp(&cpu_register.PC.reg16);
         break;
 
     case 0xDA: // JP C,nn
         if ((cpu_register.flags_register & 0x10) != 0) // C flag = 1
-        {
-            uint16_t nn = memory_read(cpu_register.PC.reg16++)
-                | (memory_read(cpu_register.PC.reg16++) << 8);
-            cpu_register.PC.reg16 = nn;
-        }
+            jp(&cpu_register.PC.reg16);
         break;
 
     // JP (HL) (page 112)
@@ -342,121 +323,93 @@ void exec_opcode(uint8_t opcode)
         break;
 
     // JR n (page 112)
-    case 0x18: {
-        int8_t n = (int8_t)memory_read(cpu_register.PC.reg16++);
-        cpu_register.PC.reg16 += n;
-    }
-    break;
+    case 0x18:
+        jr(&cpu_register.PC.reg16);
+        break;
 
     // JR cc,n (page 114)
     case 0x20: // JR NZ,n
         if ((cpu_register.flags_register & 0x80) == 0) // Z flag = 0 (NZ)
-        {
-            int8_t n = (int8_t)memory_read(cpu_register.PC.reg16++);
-            cpu_register.PC.reg16 += n;
-        }
+            jr(&cpu_register.PC.reg16);
         break;
 
     case 0x28: // JR Z,n
         if ((cpu_register.flags_register & 0x80) != 0) // Z flag = 1 (Z)
-        {
-            int8_t n = (int8_t)memory_read(cpu_register.PC.reg16++);
-            cpu_register.PC.reg16 += n;
-        }
+            jr(&cpu_register.PC.reg16);
         break;
 
     case 0x30: // JR NC,n
         if ((cpu_register.flags_register & 0x10) == 0) // C flag = 0 (NC)
-        {
-            int8_t n = (int8_t)memory_read(cpu_register.PC.reg16++);
-            cpu_register.PC.reg16 += n;
-        }
+            jr(&cpu_register.PC.reg16);
         break;
 
     case 0x38: // JR C,n
         if ((cpu_register.flags_register & 0x10) != 0) // C flag = 1 (C)
-        {
-            int8_t n = (int8_t)memory_read(cpu_register.PC.reg16++);
-            cpu_register.PC.reg16 += n;
-        }
+            jr(&cpu_register.PC.reg16);
         break;
 
     // CALL nn (page 114)
-    // TODO: implement a stack
     case 0xCD:
+        call(&cpu_register.PC.reg16, &cpu_register.SP.reg16);
         break;
 
     // CALL cc,nn (page 115)
     case 0xC4:
         if ((cpu_register.flags_register & 0x80) == 0) // Z flag = 0 (NZ)
-        {
-        }
+            call(&cpu_register.PC.reg16, &cpu_register.SP.reg16);
         break;
     case 0xCC:
         if ((cpu_register.flags_register & 0x80) != 0) // Z flag = 1 (Z)
-        {
-        }
+            call(&cpu_register.PC.reg16, &cpu_register.SP.reg16);
         break;
     case 0xD4:
         if ((cpu_register.flags_register & 0x10) == 0) // C flag = 0 (NC)
-        {
-        }
+            call(&cpu_register.PC.reg16, &cpu_register.SP.reg16);
         break;
     case 0xDC:
         if ((cpu_register.flags_register & 0x10) != 0) // C flag = 1 (C)
-        {
-        }
+            call(&cpu_register.PC.reg16, &cpu_register.SP.reg16);
         break;
 
     // RST n (page 116)
-    // TODO: implement a stack
     case 0xC7:
-        break;
     case 0xCF:
-        break;
     case 0xD7:
-        break;
     case 0xDF:
-        break;
     case 0xE7:
-        break;
     case 0xEF:
-        break;
     case 0xF7:
-        break;
     case 0xFF:
+        rst(opcode, &cpu_register.PC.reg16, &cpu_register.SP.reg16);
         break;
 
     // RET (page 117)
-    // TODO: implement a stack
     case 0xC9:
+        ret(&cpu_register.PC.reg16, &cpu_register.SP.reg16);
         break;
 
     // RET cc (page 117)
     case 0xC0:
         if ((cpu_register.flags_register & 0x80) == 0) // Z flag = 0 (NZ)
-        {
-        }
+            ret(&cpu_register.PC.reg16, &cpu_register.SP.reg16);
         break;
     case 0xC8:
         if ((cpu_register.flags_register & 0x80) != 0) // Z flag = 1 (Z)
-        {
-        }
+            ret(&cpu_register.PC.reg16, &cpu_register.SP.reg16);
         break;
     case 0xD0:
         if ((cpu_register.flags_register & 0x10) == 0) // C flag = 0 (NC)
-        {
-        }
+            ret(&cpu_register.PC.reg16, &cpu_register.SP.reg16);
         break;
     case 0xD8:
         if ((cpu_register.flags_register & 0x10) != 0) // C flag = 1 (C)
-        {
-        }
+            ret(&cpu_register.PC.reg16, &cpu_register.SP.reg16);
         break;
 
     // RETI (page 118)
-    // TODO: implement a stack
     case 0xD9:
+        ret(&cpu_register.PC.reg16, &cpu_register.SP.reg16);
+        ei();
         break;
 
     case 0xCB: {
