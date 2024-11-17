@@ -284,6 +284,27 @@ void exec_opcode(uint8_t opcode)
         cpu_register.HL.reg16--;
         break;
 
+    case 0x2A: // LD A,(HLI)
+        ld(&cpu_register.AF.reg8.high, 16, memory_read(cpu_register.HL.reg16));
+        cpu_register.HL.reg16++;
+        break;
+
+    case 0x22: // LD (HLI),A
+        memory_write(cpu_register.HL.reg16,
+                     memory_read(cpu_register.AF.reg8.high));
+        cpu_register.HL.reg16++;
+        break;
+
+    case 0xE0: // LDH (n),A
+        memory_write(0xFF00 + memory_read(cpu_register.PC.reg16++),
+                     cpu_register.AF.reg8.high);
+        break;
+
+    case 0xF0: //  LDH A,(n)
+        ld(&cpu_register.AF.reg8.high, 8,
+           memory_read(0xFF00) + memory_read(cpu_register.PC.reg16++));
+        break;
+
     case 0x01: // LD n,nn
         ld_nn(&cpu_register.BC.reg16, memory_read(cpu_register.PC.reg16++),
               memory_read(cpu_register.PC.reg16++));
@@ -301,7 +322,468 @@ void exec_opcode(uint8_t opcode)
               memory_read(cpu_register.PC.reg16++));
         break;
 
-        // DAA (page 95)
+    case 0xF9: // probably change
+        memory_write(cpu_register.SP.reg16++, cpu_register.HL.reg16);
+        break;
+
+    case 0xF8: // probably change + flags
+        ld(&cpu_register.HL.reg16,
+           memory_read(cpu_register.SP.reg16)
+               + memory_read(cpu_register.PC.reg16++));
+        break;
+
+    case 0x08: // LD (nn),SP
+        ld_nn(&cpu_register.SP.reg16, memory_read(cpu_register.PC.reg16++),
+              memory_read(cpu_register.PC.reg16++));
+        break;
+
+    case 0xF5: // PUSH nn
+        ld_r1_r2(&cpu_register.SP.reg16, 16, cpu_register.AF.reg16);
+        cpu_register.SP.reg16--;
+        break;
+
+    case 0xC5:
+        ld_r1_r2(&cpu_register.SP.reg16, 16, cpu_register.BC.reg16);
+        cpu_register.SP.reg16--;
+        break;
+
+    case 0xD5:
+        ld_r1_r2(&cpu_register.SP.reg16, 16, cpu_register.DE.reg16);
+        cpu_register.SP.reg16--;
+        break;
+
+    case 0xE5:
+        ld_r1_r2(&cpu_register.SP.reg16, 16, cpu_register.HL.reg16);
+        cpu_register.SP.reg16--;
+        break;
+
+    case 0xF1: // POP nn
+        ld_r1_r2(&cpu_register.AF.reg16, 16,
+                 memory_read(cpu_register.SP.reg16++));
+        break;
+
+    case 0xC1:
+        ld_r1_r2(&cpu_register.BC.reg16, 16,
+                 memory_read(cpu_register.SP.reg16++));
+        break;
+
+    case 0xD1:
+        ld_r1_r2(&cpu_register.DE.reg16, 16,
+                 memory_read(cpu_register.SP.reg16++));
+        break;
+
+    case 0xE1:
+        ld_r1_r2(&cpu_register.HL.reg16, 16,
+                 memory_read(cpu_register.SP.reg16++));
+        break;
+
+    case 0x87: // ADD
+        add(&cpu_register.AF.reg8.high, cpu_register.AF.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x80:
+        add(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x81:
+        add(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x82:
+        add(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x83:
+        add(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x84:
+        add(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x85:
+        add(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x86:
+        add(&cpu_register.AF.reg8.high, cpu_register.HL.reg16,
+            &cpu_register.flags_register);
+        break;
+    case 0xC6:
+        add(&cpu_register.AF.reg8.high, memory_read(cpu_register.PC.reg16++),
+            &cpu_register.flags_register);
+        break;
+
+    case 0x8F: // ADC
+        adc(&cpu_register.AF.reg8.high, cpu_register.AF.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x88:
+        adc(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x89:
+        adc(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x8A:
+        adc(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x8B:
+        adc(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x8C:
+        adc(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x8D:
+        adc(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x8E:
+        adc(&cpu_register.AF.reg8.high, cpu_register.HL.reg16,
+            &cpu_register.flags_register);
+        break;
+    case 0xCE:
+        adc(&cpu_register.AF.reg8.high, memory_read(cpu_register.PC.reg16++),
+            &cpu_register.flags_register);
+        break;
+
+    case 0x97: // sub
+        sub(&cpu_register.AF.reg8.high, cpu_register.AF.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x90:
+        sub(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x91:
+        sub(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x92:
+        sub(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x93:
+        sub(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x94:
+        sub(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x95:
+        sub(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x96:
+        sub(&cpu_register.AF.reg8.high, cpu_register.HL.reg16,
+            &cpu_register.flags_register);
+        break;
+    case 0xD6:
+        sub(&cpu_register.AF.reg8.high, memory_read(cpu_register.PC.reg16++),
+            &cpu_register.flags_register);
+        break;
+
+    case 0x9F: // sbc
+        sbc(&cpu_register.AF.reg8.high, cpu_register.AF.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x98:
+        sbc(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x99:
+        sbc(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x9A:
+        sbc(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x9B:
+        sbc(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x9C:
+        sbc(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x9D:
+        sbc(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x9E:
+        sbc(&cpu_register.AF.reg8.high, cpu_register.HL.reg16,
+            &cpu_register.flags_register);
+        break;
+
+    case 0xA7: // and
+        and(&cpu_register.AF.reg8.high, cpu_register.AF.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0xA0:
+        and(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0xA1:
+        and(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0xA2:
+        and(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0xA3:
+        and(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0xA4:
+        and(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0xA5:
+        and(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0xA6:
+        and(&cpu_register.AF.reg8.high, cpu_register.HL.reg16,
+            &cpu_register.flags_register);
+        break;
+    case 0xE6:
+        and(&cpu_register.AF.reg8.high, memory_read(cpu_register.PC.reg16++),
+            &cpu_register.flags_register);
+        break;
+
+    case 0xB7: // or
+        or (&cpu_register.AF.reg8.high, cpu_register.AF.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0xB0:
+        or (&cpu_register.AF.reg8.high, cpu_register.BC.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0xB1:
+        or (&cpu_register.AF.reg8.high, cpu_register.BC.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0xB2:
+        or (&cpu_register.AF.reg8.high, cpu_register.DE.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0xB3:
+        or (&cpu_register.AF.reg8.high, cpu_register.DE.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0xB4:
+        or (&cpu_register.AF.reg8.high, cpu_register.HL.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0xB5:
+        or (&cpu_register.AF.reg8.high, cpu_register.HL.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0xB6:
+        or (&cpu_register.AF.reg8.high, cpu_register.HL.reg16,
+            &cpu_register.flags_register);
+        break;
+    case 0xF6:
+        or (&cpu_register.AF.reg8.high, memory_read(cpu_register.PC.reg16++),
+            &cpu_register.flags_register);
+        break;
+
+    case 0xAF: // xor
+        xor(&cpu_register.AF.reg8.high, cpu_register.AF.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0xA8:
+        xor(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0xA9:
+        xor(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0xAA:
+        xor(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0xAB:
+        xor(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0xAC:
+        xor(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0xAD:
+        xor(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0xAE:
+        xor(&cpu_register.AF.reg8.high, cpu_register.HL.reg16,
+            &cpu_register.flags_register);
+        break;
+    case 0xEE:
+        xor(&cpu_register.AF.reg8.high, memory_read(cpu_register.PC.reg16++),
+            &cpu_register.flags_register);
+        break;
+
+    case 0xBF: // cp
+        cp(&cpu_register.AF.reg8.high, cpu_register.AF.reg8.high,
+           &cpu_register.flags_register);
+        break;
+    case 0xB8:
+        cp(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.high,
+           &cpu_register.flags_register);
+        break;
+    case 0xB9:
+        cp(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.low,
+           &cpu_register.flags_register);
+        break;
+    case 0xBA:
+        cp(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.high,
+           &cpu_register.flags_register);
+        break;
+    case 0xBB:
+        cp(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.low,
+           &cpu_register.flags_register);
+        break;
+    case 0xBC:
+        cp(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.high,
+           &cpu_register.flags_register);
+        break;
+    case 0xBD:
+        cp(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.low,
+           &cpu_register.flags_register);
+        break;
+    case 0xBE:
+        cp(&cpu_register.AF.reg8.high, cpu_register.HL.reg16,
+           &cpu_register.flags_register);
+        break;
+    case 0xFE:
+        cp(&cpu_register.AF.reg8.high, memory_read(cpu_register.PC.reg16++),
+           &cpu_register.flags_register);
+        break;
+
+    case 0x3C: // inc
+        inc(&cpu_register.AF.reg8.high, cpu_register.AF.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x04:
+        inc(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x0C:
+        inc(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x14:
+        inc(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x1C:
+        inc(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x24:
+        inc(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x2C:
+        inc(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x34:
+        inc(&cpu_register.AF.reg8.high, cpu_register.HL.reg16,
+            &cpu_register.flags_register);
+        break;
+
+    case 0x3D: // dec
+        dec(&cpu_register.AF.reg8.high, cpu_register.AF.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x05:
+        dec(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x0D:
+        dec(&cpu_register.AF.reg8.high, cpu_register.BC.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x15:
+        dec(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x1D:
+        dec(&cpu_register.AF.reg8.high, cpu_register.DE.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x25:
+        dec(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.high,
+            &cpu_register.flags_register);
+        break;
+    case 0x2D:
+        dec(&cpu_register.AF.reg8.high, cpu_register.HL.reg8.low,
+            &cpu_register.flags_register);
+        break;
+    case 0x35:
+        dec(&cpu_register.AF.reg8.high, cpu_register.HL.reg16,
+            &cpu_register.flags_register);
+        break;
+
+    case 0x09: // add 16
+        add_16(&cpu_register.HL.reg16, cpu_register.BC.reg16,
+               &cpu_register.flags_register);
+        break;
+    case 0x19:
+        add_16(&cpu_register.HL.reg16, cpu_register.DE.reg16,
+               &cpu_register.flags_register);
+        break;
+    case 0x29:
+        add_16(&cpu_register.HL.reg16, cpu_register.HL.reg16,
+               &cpu_register.flags_register);
+        break;
+    case 0x39:
+        add_16(&cpu_register.HL.reg16, cpu_register.SP.reg16,
+               &cpu_register.flags_register);
+        break;
+
+    case 0xE8: // add SP
+        inc_16(&cpu_register.SP.reg16, memory_read(cpu_register.PC.reg16++),
+               &cpu_register.flags_register);
+        break;
+
+    case 0x03: // inc 16
+        inc_16(&cpu_register.BC.reg16);
+        break;
+    case 0x13:
+        inc_16(&cpu_register.DE.reg16);
+        break;
+    case 0x23:
+        inc_16(&cpu_register.HL.reg16);
+        break;
+    case 0x33:
+        inc_16(&cpu_register.SP.reg16);
+        break;
+
+    case 0x0B: // inc 16
+        dec_16(&cpu_register.BC.reg16);
+        break;
+    case 0x1B:
+        dec_16(&cpu_register.DE.reg16);
+        break;
+    case 0x2B:
+        dec_16(&cpu_register.HL.reg16);
+        break;
+    case 0x3B:
+        dec_16(&cpu_register.SP.reg16);
+        break;
+
+    // DAA (page 95)
     case 0x27:
         dda(&cpu_register.AF.reg8.high, &cpu_register.flags_register);
         break;
