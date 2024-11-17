@@ -11,34 +11,39 @@ extern struct rom rom;
 static struct cpu_register cpu_register;
 
 // function to execute all the opcode
-void exec_opcode(uint16_t opcode)
+void exec_opcode(uint8_t opcode)
 {
 #ifdef DEBUG
-    printf("Executing opcode: 0x%04X\n", opcode);
+    printf("Executing opcode: 0x%02X\n", opcode);
 #endif
-    // TODO
     switch (opcode)
     { // opcode for load 8bits value in register
     case 0x06:
-        ld(&cpu_register.BC.reg8.high, memory_read(cpu_register.PC.reg16++));
+        ld(&cpu_register.BC.reg8.high,
+           (uint8_t)memory_read(cpu_register.PC.reg16++));
         break;
     case 0x0E:
-        ld(&cpu_register.BC.reg8.low, memory_read(cpu_register.PC.reg16++));
+        ld(&cpu_register.BC.reg8.low,
+           (uint8_t)memory_read(cpu_register.PC.reg16++));
         break;
     case 0x16:
-        ld(&cpu_register.DE.reg8.high, memory_read(cpu_register.PC.reg16++));
+        ld(&cpu_register.DE.reg8.high,
+           (uint8_t)memory_read(cpu_register.PC.reg16++));
         break;
     case 0x1E:
-        ld(&cpu_register.DE.reg8.low, memory_read(cpu_register.PC.reg16++));
+        ld(&cpu_register.DE.reg8.low,
+           (uint8_t)memory_read(cpu_register.PC.reg16++));
         break;
     case 0x26:
-        ld(&cpu_register.HL.reg8.high, memory_read(cpu_register.PC.reg16++));
+        ld(&cpu_register.HL.reg8.high,
+           (uint8_t)memory_read(cpu_register.PC.reg16++));
         break;
     case 0x2E:
-        ld(&cpu_register.HL.reg8.low, memory_read(cpu_register.PC.reg16++));
+        ld(&cpu_register.HL.reg8.low,
+           (uint8_t)memory_read(cpu_register.PC.reg16++));
         break;
 
-        // opcode for load 8bits register into other register
+    // opcode for load 8bits register into other register
     case 0x7F: // register A
         ld_r1_r2(&cpu_register.AF.reg8.high, 8, cpu_register.AF.reg8.high);
         break;
@@ -218,32 +223,6 @@ void exec_opcode(uint16_t opcode)
         ld_r1_r2(&cpu_register.HL.reg16, 16, cpu_register.PC.reg16);
         break;
 
-    // SWAP n (page 94)
-    case 0xCB37:
-        swap(&cpu_register.AF.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB30:
-        swap(&cpu_register.BC.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB31:
-        swap(&cpu_register.BC.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB32:
-        swap(&cpu_register.DE.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB33:
-        swap(&cpu_register.DE.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB34:
-        swap(&cpu_register.HL.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB35:
-        swap(&cpu_register.HL.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB36:
-        swap(&cpu_register.HL.reg16, 16, &cpu_register.flags_register);
-        break;
-
     // DAA (page 95)
     case 0x27:
         dda(&cpu_register.AF.reg8.high, &cpu_register.flags_register);
@@ -275,302 +254,86 @@ void exec_opcode(uint16_t opcode)
         break;
 
     // STOP (page 97)
-    case 0x1000:
+    // TODO: opcode -> 10 00
+    case 0x10:
         stop();
         break;
 
     // DI (page 98)
+    // TODO:
     case 0xF3:
-        // TODO:
         di();
         break;
 
     // EI (page 98)
+    // TODO:
     case 0xFB:
-        // TODO:
         ei();
         break;
 
     // RLCA (page 99)
     case 0x07:
-    // RLC n (page 101)
-    case 0xCB07:
         rlc(&cpu_register.AF.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB00:
-        rlc(&cpu_register.BC.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB01:
-        rlc(&cpu_register.BC.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB02:
-        rlc(&cpu_register.DE.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB03:
-        rlc(&cpu_register.DE.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB04:
-        rlc(&cpu_register.HL.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB05:
-        rlc(&cpu_register.HL.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB06:
-        rlc(&cpu_register.HL.reg16, 16, &cpu_register.flags_register);
         break;
 
     // RLA (page 99)
     case 0x17:
-    // RL n (page 102)
-    case 0xCB17:
         rl(&cpu_register.AF.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB10:
-        rl(&cpu_register.BC.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB11:
-        rl(&cpu_register.BC.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB12:
-        rl(&cpu_register.DE.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB13:
-        rl(&cpu_register.DE.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB14:
-        rl(&cpu_register.HL.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB15:
-        rl(&cpu_register.HL.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB16:
-        rl(&cpu_register.HL.reg16, 16, &cpu_register.flags_register);
         break;
 
     // RRCA (page 100)
     case 0x0F:
-    // RRC n (page 103)
-    case 0xCB0F:
         rrc(&cpu_register.AF.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB08:
-        rrc(&cpu_register.BC.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB09:
-        rrc(&cpu_register.BC.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB0A:
-        rrc(&cpu_register.DE.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB0B:
-        rrc(&cpu_register.DE.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB0C:
-        rrc(&cpu_register.HL.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB0D:
-        rrc(&cpu_register.HL.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB0E:
-        rrc(&cpu_register.HL.reg16, 16, &cpu_register.flags_register);
         break;
 
     // RRA (page 100)
     case 0x1F:
-    // RR n (page 104)
-    case 0xCB1F:
         rr(&cpu_register.AF.reg8.high, 8, &cpu_register.flags_register);
         break;
-    case 0xCB18:
-        rr(&cpu_register.BC.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB19:
-        rr(&cpu_register.BC.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB1A:
-        rr(&cpu_register.DE.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB1B:
-        rr(&cpu_register.DE.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB1C:
-        rr(&cpu_register.HL.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB1D:
-        rr(&cpu_register.HL.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB1E:
-        rr(&cpu_register.HL.reg16, 16, &cpu_register.flags_register);
+
+        // JP nn (page 111)
+    case 0xC3: {
+        uint16_t nn = memory_read(cpu_register.PC.reg16++)
+            | (memory_read(cpu_register.PC.reg16++) << 8);
+        cpu_register.PC.reg16 = nn;
+    }
+    break;
+
+    // JP cc, nn (page 113)
+    case 0xC2: // JP NZ,nn
+        if ((cpu_register.flags_register & 0x80) == 0) // Z flag = 0
+        {
+            uint16_t nn = memory_read(cpu_register.PC.reg16++)
+                | (memory_read(cpu_register.PC.reg16++) << 8);
+            cpu_register.PC.reg16 = nn;
+        }
         break;
 
-    // SLA n (page 105)
-    case 0xCB27:
-        sla(&cpu_register.AF.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB20:
-        sla(&cpu_register.BC.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB21:
-        sla(&cpu_register.BC.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB22:
-        sla(&cpu_register.DE.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB23:
-        sla(&cpu_register.DE.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB24:
-        sla(&cpu_register.HL.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB25:
-        sla(&cpu_register.HL.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB26:
-        sla(&cpu_register.HL.reg16, 16, &cpu_register.flags_register);
+    case 0xCA: // JP Z,nn
+        if ((cpu_register.flags_register & 0x80) != 0) // Z flag = 1
+        {
+            uint16_t nn = memory_read(cpu_register.PC.reg16++)
+                | (memory_read(cpu_register.PC.reg16++) << 8);
+            cpu_register.PC.reg16 = nn;
+        }
         break;
 
-    // SRA n (page 106)
-    case 0xCB2F:
-        sra(&cpu_register.AF.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB28:
-        sra(&cpu_register.BC.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB29:
-        sra(&cpu_register.BC.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB2A:
-        sra(&cpu_register.DE.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB2B:
-        sra(&cpu_register.DE.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB2C:
-        sra(&cpu_register.HL.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB2D:
-        sra(&cpu_register.HL.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB2E:
-        sra(&cpu_register.HL.reg16, 16, &cpu_register.flags_register);
+    case 0xD2: // JP NC,nn
+        if ((cpu_register.flags_register & 0x10) == 0) // C flag = 0
+        {
+            uint16_t nn = memory_read(cpu_register.PC.reg16++)
+                | (memory_read(cpu_register.PC.reg16++) << 8);
+            cpu_register.PC.reg16 = nn;
+        }
         break;
 
-    // SRL n (page 107)
-    case 0xCB3F:
-        srl(&cpu_register.AF.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB38:
-        srl(&cpu_register.BC.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB39:
-        srl(&cpu_register.BC.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB3A:
-        srl(&cpu_register.DE.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB3B:
-        srl(&cpu_register.DE.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB3C:
-        srl(&cpu_register.HL.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB3D:
-        srl(&cpu_register.HL.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB3E:
-        srl(&cpu_register.HL.reg16, 16, &cpu_register.flags_register);
-        break;
-
-    // BIT b,r (page 108)
-    case 0xCB47:
-        bit(101, &cpu_register.AF.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB40:
-        bit(101, &cpu_register.BC.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB41:
-        bit(101, &cpu_register.BC.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB42:
-        bit(101, &cpu_register.DE.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB43:
-        bit(101, &cpu_register.DE.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB44:
-        bit(101, &cpu_register.HL.reg8.high, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB45:
-        bit(101, &cpu_register.HL.reg8.low, 8, &cpu_register.flags_register);
-        break;
-    case 0xCB46:
-        bit(101, &cpu_register.HL.reg16, 16, &cpu_register.flags_register);
-        break;
-
-    // SET b,r (page 109)
-    case 0xCBC7:
-        set(101, &cpu_register.AF.reg8.high, 8);
-        break;
-    case 0xCBC0:
-        set(101, &cpu_register.BC.reg8.high, 8);
-        break;
-    case 0xCBC1:
-        set(101, &cpu_register.BC.reg8.low, 8);
-        break;
-    case 0xCBC2:
-        set(101, &cpu_register.DE.reg8.high, 8);
-        break;
-    case 0xCBC3:
-        set(101, &cpu_register.DE.reg8.low, 8);
-        break;
-    case 0xCBC4:
-        set(101, &cpu_register.HL.reg8.high, 8);
-        break;
-    case 0xCBC5:
-        set(101, &cpu_register.HL.reg8.low, 8);
-        break;
-    case 0xCBC6:
-        set(101, &cpu_register.HL.reg16, 16);
-        break;
-
-    // RES b,r (page 110)
-    case 0xCB87:
-        res(101, &cpu_register.AF.reg8.high, 8);
-        break;
-    case 0xCB80:
-        res(101, &cpu_register.BC.reg8.high, 8);
-        break;
-    case 0xCB81:
-        res(101, &cpu_register.BC.reg8.low, 8);
-        break;
-    case 0xCB82:
-        res(101, &cpu_register.DE.reg8.high, 8);
-        break;
-    case 0xCB83:
-        res(101, &cpu_register.DE.reg8.low, 8);
-        break;
-    case 0xCB84:
-        res(101, &cpu_register.HL.reg8.high, 8);
-        break;
-    case 0xCB85:
-        res(101, &cpu_register.HL.reg8.low, 8);
-        break;
-    case 0xCB86:
-        res(101, &cpu_register.HL.reg16, 16);
-        break;
-
-    // JP nn (page 111)
-    case 0xC3:
-        break;
-
-    // JP cc,nn (page 111)
-    case 0xC2:
-        break;
-    case 0xCA:
-        break;
-    case 0xD2:
-        break;
-    case 0xDA:
+    case 0xDA: // JP C,nn
+        if ((cpu_register.flags_register & 0x10) != 0) // C flag = 1
+        {
+            uint16_t nn = memory_read(cpu_register.PC.reg16++)
+                | (memory_read(cpu_register.PC.reg16++) << 8);
+            cpu_register.PC.reg16 = nn;
+        }
         break;
 
     // JP (HL) (page 112)
@@ -579,34 +342,74 @@ void exec_opcode(uint16_t opcode)
         break;
 
     // JR n (page 112)
-    case 0x18:
+    case 0x18: {
+        int8_t n = (int8_t)memory_read(cpu_register.PC.reg16++);
+        cpu_register.PC.reg16 += n;
+    }
+    break;
+
+    // JR cc,n (page 114)
+    case 0x20: // JR NZ,n
+        if ((cpu_register.flags_register & 0x80) == 0) // Z flag = 0 (NZ)
+        {
+            int8_t n = (int8_t)memory_read(cpu_register.PC.reg16++);
+            cpu_register.PC.reg16 += n;
+        }
         break;
 
-    // JR cc,n (page 113)
-    case 0x20:
+    case 0x28: // JR Z,n
+        if ((cpu_register.flags_register & 0x80) != 0) // Z flag = 1 (Z)
+        {
+            int8_t n = (int8_t)memory_read(cpu_register.PC.reg16++);
+            cpu_register.PC.reg16 += n;
+        }
         break;
-    case 0x28:
+
+    case 0x30: // JR NC,n
+        if ((cpu_register.flags_register & 0x10) == 0) // C flag = 0 (NC)
+        {
+            int8_t n = (int8_t)memory_read(cpu_register.PC.reg16++);
+            cpu_register.PC.reg16 += n;
+        }
         break;
-    case 0x30:
-        break;
-    case 0x38:
+
+    case 0x38: // JR C,n
+        if ((cpu_register.flags_register & 0x10) != 0) // C flag = 1 (C)
+        {
+            int8_t n = (int8_t)memory_read(cpu_register.PC.reg16++);
+            cpu_register.PC.reg16 += n;
+        }
         break;
 
     // CALL nn (page 114)
+    // TODO: implement a stack
     case 0xCD:
         break;
 
     // CALL cc,nn (page 115)
     case 0xC4:
+        if ((cpu_register.flags_register & 0x80) == 0) // Z flag = 0 (NZ)
+        {
+        }
         break;
     case 0xCC:
+        if ((cpu_register.flags_register & 0x80) != 0) // Z flag = 1 (Z)
+        {
+        }
         break;
     case 0xD4:
+        if ((cpu_register.flags_register & 0x10) == 0) // C flag = 0 (NC)
+        {
+        }
         break;
     case 0xDC:
+        if ((cpu_register.flags_register & 0x10) != 0) // C flag = 1 (C)
+        {
+        }
         break;
 
     // RST n (page 116)
+    // TODO: implement a stack
     case 0xC7:
         break;
     case 0xCF:
@@ -625,22 +428,93 @@ void exec_opcode(uint16_t opcode)
         break;
 
     // RET (page 117)
+    // TODO: implement a stack
     case 0xC9:
         break;
 
     // RET cc (page 117)
     case 0xC0:
+        if ((cpu_register.flags_register & 0x80) == 0) // Z flag = 0 (NZ)
+        {
+        }
         break;
     case 0xC8:
+        if ((cpu_register.flags_register & 0x80) != 0) // Z flag = 1 (Z)
+        {
+        }
         break;
     case 0xD0:
+        if ((cpu_register.flags_register & 0x10) == 0) // C flag = 0 (NC)
+        {
+        }
         break;
     case 0xD8:
+        if ((cpu_register.flags_register & 0x10) != 0) // C flag = 1 (C)
+        {
+        }
         break;
 
     // RETI (page 118)
+    // TODO: implement a stack
     case 0xD9:
         break;
+
+    case 0xCB: {
+        uint8_t cb_opcode = memory_read(
+            cpu_register.PC.reg16++); // Recover next opcode following 0xCB
+        uint8_t val = (cb_opcode >> 3) & 0x07; // Extract op value (bits 3-5)
+        uint8_t r_index = cb_opcode & 0x07; // Extract register index (bits 0-2)
+
+        void *registers[8] = {
+            &cpu_register.BC.reg8.high, &cpu_register.BC.reg8.low,
+            &cpu_register.DE.reg8.high, &cpu_register.DE.reg8.low,
+            &cpu_register.HL.reg8.high, &cpu_register.HL.reg8.low,
+            &cpu_register.HL.reg16,     &cpu_register.AF.reg8.high
+        }; // Define a lookup table of pointers to registers
+
+        uint8_t reg_size = (r_index == 6) ? 16 : 8; // Get register size
+        void *reg_ptr = registers[r_index]; // Get ptr to selected register
+
+        switch (cb_opcode & 0xF8)
+        {
+        case 0x30: // SWAP n (page 94)
+            swap(reg_ptr, reg_size, &cpu_register.flags_register);
+            break;
+        case 0x00: // RLC n (page 101)
+            rlc(reg_ptr, reg_size, &cpu_register.flags_register);
+            break;
+        case 0x10: // RL n (page 102)
+            rl(reg_ptr, reg_size, &cpu_register.flags_register);
+            break;
+        case 0x08: // RRC n (page 103)
+            rrc(reg_ptr, reg_size, &cpu_register.flags_register);
+            break;
+        case 0x18: // RR n (page 104)
+            rr(reg_ptr, reg_size, &cpu_register.flags_register);
+            break;
+        case 0x20: // SLA n (page 105)
+            sla(reg_ptr, reg_size, &cpu_register.flags_register);
+            break;
+        case 0x28: // SRA n (page 106)
+            sra(reg_ptr, reg_size, &cpu_register.flags_register);
+            break;
+        case 0x38: // SRL n (page 107)
+            srl(reg_ptr, reg_size, &cpu_register.flags_register);
+            break;
+        case 0x40: // BIT b,r (page 108)
+            bit(val, reg_ptr, reg_size, &cpu_register.flags_register);
+            break;
+        case 0xC0: // SET b,r (page 109)
+            set(val, reg_ptr, reg_size);
+            break;
+        case 0x80: // RES b,r (page 110)
+            res(val, reg_ptr, reg_size);
+            break;
+        default:
+            fprintf(stderr, "error: opcode not recognised\n");
+            abort(); // if opcode is not recognised, stop the programme
+        }
+    }
 
     default:
         fprintf(stderr, "error: opcode not recognised\n");
