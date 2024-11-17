@@ -41,7 +41,8 @@ void add(uint8_t *r, uint16_t value, uint8_t *flags)
     *r += value;
     if (*r == 0)
     {
-        *flags &= ~0x40; // Set N
+        *flags |= 0x40; // Set N
+        *flags &= ~0x20; // Reset H
     }
 }
 
@@ -51,9 +52,23 @@ void adc(uint8_t *r, uint16_t value, uint8_t *flags)
     *r += value;
     if (*r == 0)
     {
-        *flags &= ~0x40; // Set N
+        *flags |= 0x40; // Set N
+        *flags &= ~0x20; // Reset H
     }
 }
+
+void sub(uint8_t *r, uint16_t value, uint8_t *flags);
+void sbc(uint8_t *r, uint16_t value, uint8_t *flags);
+void and (uint8_t *r, uint16_t value, uint8_t *flags);
+void or (uint8_t *r, uint16_t value, uint8_t *flags);
+void xor (uint8_t *r, uint16_t value, uint8_t *flags);
+void cp(uint8_t *r, uint16_t value, uint8_t *flags);
+void inc(uint8_t *r, uint16_t value, uint8_t *flags);
+void dec(uint8_t *r, uint16_t value, uint8_t *flags);
+
+void add_16(uint16_t *r, uint16_t value, uint8_t *flags);
+void inc_16(uint16_t *r);
+void dec_16(uint16_t *r);
 
 // SWAP n (page 94)
 void swap(void *r, uint8_t size, uint8_t *flags)
