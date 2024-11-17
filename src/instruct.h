@@ -3,8 +3,12 @@
 
 #include <stdint.h>
 
+#include_next "memory.h"
+
 void ld(uint8_t *r, uint16_t value);
 void ld_r1_r2(void *r1, uint8_t size, uint8_t r2);
+void ld_nn(uint8_t *r, uint16_t value1, uint16_t value2);
+void ld_n(uint8_t *r, uint16_t value);
 
 void swap(void *r, uint8_t size, uint8_t *flags);
 void dda(uint8_t *a, uint8_t *flags);

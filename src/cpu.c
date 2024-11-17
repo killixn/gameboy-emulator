@@ -3,6 +3,7 @@
 #include "cpu.h"
 
 #include "instruct.h"
+#include "src/memory.h"
 
 // get the global variable rom
 extern struct rom rom;
@@ -19,28 +20,22 @@ void exec_opcode(uint8_t opcode)
     switch (opcode)
     { // opcode for load 8bits value in register
     case 0x06:
-        ld(&cpu_register.BC.reg8.high,
-           (uint8_t)memory_read(cpu_register.PC.reg16++));
+        ld_n(&cpu_register.BC.reg8.high, memory_read(cpu_register.PC.reg16++));
         break;
     case 0x0E:
-        ld(&cpu_register.BC.reg8.low,
-           (uint8_t)memory_read(cpu_register.PC.reg16++));
+        ld_n(&cpu_register.BC.reg8.low, memory_read(cpu_register.PC.reg16++));
         break;
     case 0x16:
-        ld(&cpu_register.DE.reg8.high,
-           (uint8_t)memory_read(cpu_register.PC.reg16++));
+        ld_n(&cpu_register.DE.reg8.high, memory_read(cpu_register.PC.reg16++));
         break;
     case 0x1E:
-        ld(&cpu_register.DE.reg8.low,
-           (uint8_t)memory_read(cpu_register.PC.reg16++));
+        ld_n(&cpu_register.DE.reg8.low, memory_read(cpu_register.PC.reg16++));
         break;
     case 0x26:
-        ld(&cpu_register.HL.reg8.high,
-           (uint8_t)memory_read(cpu_register.PC.reg16++));
+        ld_n(&cpu_register.HL.reg8.high, memory_read(cpu_register.PC.reg16++));
         break;
     case 0x2E:
-        ld(&cpu_register.HL.reg8.low,
-           (uint8_t)memory_read(cpu_register.PC.reg16++));
+        ld_n(&cpu_register.HL.reg8.low, memory_read(cpu_register.PC.reg16++));
         break;
 
     // opcode for load 8bits register into other register
@@ -201,7 +196,7 @@ void exec_opcode(uint8_t opcode)
         ld_r1_r2(&cpu_register.HL.reg8.low, 8, cpu_register.HL.reg16);
         break;
 
-    case 0x70: // register L
+    case 0x70: // register HL
         ld_r1_r2(&cpu_register.HL.reg16, 16, cpu_register.BC.reg8.high);
         break;
     case 0x71:
@@ -223,7 +218,90 @@ void exec_opcode(uint8_t opcode)
         ld_r1_r2(&cpu_register.HL.reg16, 16, cpu_register.PC.reg16);
         break;
 
-    // DAA (page 95)
+    case 0x0A: //  LD A,n
+        ld_r1_r2(&cpu_register.AF.reg8.high, 16, cpu_register.BC.reg16);
+        break;
+    case 0x1A:
+        ld_r1_r2(&cpu_register.AF.reg8.high, 16, cpu_register.DE.reg16);
+        break;
+    case 0xFA:
+        ld_nn(&cpu_register.AF.reg8.high, memory_read(cpu_register.PC.reg16++),
+              memory_read(cpu_register.PC.reg16++));
+        break;
+    case 0x3E:
+        ld(&cpu_register.AF.reg8.high, memory_read(cpu_register.PC.reg16++));
+        break;
+
+    case 0x47: //  LD n,A
+        ld_r1_r2(&cpu_register.BC.reg8.high, 8, cpu_register.AF.reg8.high);
+        break;
+    case 0x4F:
+        ld_r1_r2(&cpu_register.BC.reg8.low, 8, cpu_register.AF.reg8.high);
+        break;
+    case 0x57:
+        ld_r1_r2(&cpu_register.DE.reg8.high, 8, cpu_register.AF.reg8.high);
+        break;
+    case 0x5F:
+        ld_r1_r2(&cpu_register.DE.reg8.low, 8, cpu_register.AF.reg8.high);
+        break;
+    case 0x67:
+        ld_r1_r2(&cpu_register.HL.reg8.high, 8, cpu_register.AF.reg8.high);
+        break;
+    case 0x6F:
+        ld_r1_r2(&cpu_register.HL.reg8.low, 8, cpu_register.AF.reg8.high);
+        break;
+    case 0x02:
+        ld_r1_r2(&cpu_register.BC.reg16, 16, cpu_register.AF.reg8.high);
+        break;
+    case 0x12:
+        ld_r1_r2(&cpu_register.DE.reg16, 16, cpu_register.AF.reg8.high);
+        break;
+    case 0x77:
+        ld_r1_r2(&cpu_register.HL.reg16, 16, cpu_register.AF.reg8.high);
+        break;
+    case 0xEA:
+        ld_r1_r2(&cpu_register.BC.reg8.low, 8,
+                 cpu_register.AF.reg8.high); // TODO nn -> ????
+        break;
+
+    case 0xF2: // LD A,(C)
+        ld(&cpu_register.AF.reg8.high,
+           memory_read(0xFF00) + cpu_register.BC.reg8.low);
+        break;
+    case 0xE2: // LD (C),A TODO -> ???
+        ld(&cpu_register.AF.reg8.high,
+           memory_read(0xFF00) + cpu_register.BC.reg8.low);
+        break;
+
+    case 0x3A: // LD A,(HLD)
+        ld(&cpu_register.AF.reg8.high, 16, memory_read(cpu_register.HL.reg16));
+        cpu_register.HL.reg16--;
+        break;
+
+    case 0x32: // LD (HLD),A
+        memory_write(cpu_register.HL.reg16,
+                     memory_read(cpu_register.AF.reg8.high));
+        cpu_register.HL.reg16--;
+        break;
+
+    case 0x01: // LD n,nn
+        ld_nn(&cpu_register.BC.reg16, memory_read(cpu_register.PC.reg16++),
+              memory_read(cpu_register.PC.reg16++));
+        break;
+    case 0x11:
+        ld_nn(&cpu_register.DE.reg16, memory_read(cpu_register.PC.reg16++),
+              memory_read(cpu_register.PC.reg16++));
+        break;
+    case 0x21:
+        ld_nn(&cpu_register.HL.reg16, memory_read(cpu_register.PC.reg16++),
+              memory_read(cpu_register.PC.reg16++));
+        break;
+    case 0x31: // probably change
+        ld_nn(&cpu_register.SP.reg16, memory_read(cpu_register.PC.reg16++),
+              memory_read(cpu_register.PC.reg16++));
+        break;
+
+        // DAA (page 95)
     case 0x27:
         dda(&cpu_register.AF.reg8.high, &cpu_register.flags_register);
         break;

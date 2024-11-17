@@ -2,8 +2,6 @@
 
 #include "memory.h"
 
-#include <sys/_types/_u_int8_t.h>
-
 #include "rom.h"
 
 static struct memory *gb_memory;

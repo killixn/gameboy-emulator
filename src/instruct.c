@@ -1,11 +1,25 @@
 #include "instruct.h"
 
+<<<<<<< HEAD
 #include "memory.h"
+=======
+#include <stdint.h>
+>>>>>>> fc02bd0 (feat(cpu): update)
 
 // LD nn,n (page 65)
 void ld(uint8_t *r, uint16_t value)
 {
     *r = value; // Put value into r
+}
+
+void ld_n(uint8_t *r, uint16_t value)
+{
+    *r = memory_read(value); // Put value into r
+}
+
+void ld_nn(uint8_t *r, uint16_t value1, uint16_t value2)
+{
+    *r = (memory_read(value2) << 8) | memory_read(value1);
 }
 
 // LD r1,r2 (page 66)
@@ -18,8 +32,8 @@ void ld_r1_r2(void *r1, uint8_t size, uint8_t r2)
     }
     else if (size == 16)
     {
-        uint16_t *r116 = (uint16_t *)r1;
-        *r116 = r2; // Put value r2 into r1
+        uint16_t *r16 = (uint16_t *)r1;
+        *r16 = r2; // Put value r2 into r1
     }
 }
 
