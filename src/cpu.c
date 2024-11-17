@@ -3,10 +3,7 @@
 #include "cpu.h"
 
 #include "instruct.h"
-<<<<<<< Updated upstream
-=======
 #include "memory.h"
->>>>>>> Stashed changes
 
 // get the global variable rom
 extern struct rom rom;
@@ -23,31 +20,23 @@ void exec_opcode(uint8_t opcode)
     switch (opcode)
     { // opcode for load 8bits value in register
     case 0x06:
-<<<<<<< Updated upstream
         ld(&cpu_register.BC.reg8.high,
            (uint8_t)memory_read(cpu_register.PC.reg16++));
         break;
     case 0x0E:
-        ld(&cpu_register.BC.reg8.low,
-           (uint8_t)memory_read(cpu_register.PC.reg16++));
+        ld_n(&cpu_register.BC.reg8.low, memory_read(cpu_register.PC.reg16++));
         break;
     case 0x16:
-        ld(&cpu_register.DE.reg8.high,
-           (uint8_t)memory_read(cpu_register.PC.reg16++));
+        ld_n(&cpu_register.DE.reg8.high, memory_read(cpu_register.PC.reg16++));
         break;
     case 0x1E:
-        ld(&cpu_register.DE.reg8.low,
-           (uint8_t)memory_read(cpu_register.PC.reg16++));
+        ld_n(&cpu_register.DE.reg8.low, memory_read(cpu_register.PC.reg16++));
         break;
     case 0x26:
-        ld(&cpu_register.HL.reg8.high,
-           (uint8_t)memory_read(cpu_register.PC.reg16++));
+        ld_n(&cpu_register.HL.reg8.high, memory_read(cpu_register.PC.reg16++));
         break;
     case 0x2E:
-        ld(&cpu_register.HL.reg8.low,
-           (uint8_t)memory_read(cpu_register.PC.reg16++));
-=======
-        ld_n(&cpu_register.BC.reg8.high, cpu_register.PC.reg16++);
+        ld_n(&cpu_register.HL.reg8.low, memory_read(cpu_register.PC.reg16++));
         break;
     case 0x0E:
         ld_n(&cpu_register.BC.reg8.low, cpu_register.PC.reg16++);
@@ -224,8 +213,7 @@ void exec_opcode(uint8_t opcode)
         ld_r1_r2(&cpu_register.HL.reg8.low, cpu_register.HL.reg16, 8);
         break;
 
-<<<<<<< Updated upstream
-    case 0x70: // register L
+    case 0x70: // register HL
         ld_r1_r2(&cpu_register.HL.reg16, 16, cpu_register.BC.reg8.high);
 =======
     case 0x70: // register HL

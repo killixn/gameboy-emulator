@@ -3,14 +3,10 @@
 
 #include <stdint.h>
 
-<<<<<<< Updated upstream
+#include_next "memory.h"
+
 void ld(uint8_t *r, uint16_t value);
 void ld_r1_r2(void *r1, uint8_t size, uint8_t r2);
-=======
-#define FLAG_Z 0x80
-#define FLAG_N 0x40
-#define FLAG_H 0x20
-#define FLAG_C 0x10
 
 void ld(uint8_t *r, uint16_t value);
 void ld_r1_r2(void *r1, uint8_t r2, uint8_t size);
