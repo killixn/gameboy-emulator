@@ -4,12 +4,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "memory.h"
-
-// group two 8-bit registers to form 16-bit pairs
+// Group two 8-bit registers to form 16-bit pairs
 typedef union
 {
-    uint16_t reg16; // registrer 16 bits
+    uint16_t reg16; // Registrer 16 bits
     struct
     {
         uint8_t low; // 8 firt bits
@@ -17,16 +15,15 @@ typedef union
     } reg8;
 } Register;
 
-// cpu structure with all registers and flags
+// CPU structure with all registers and flags
 struct cpu_register
 {
     Register AF;
     Register BC;
     Register DE;
     Register HL;
-    Register SP; // stack pointer
-    Register PC; // programme counter
-    u_int8_t flags_register;
+    Register SP; // Stack pointer
+    Register PC; // Programme counter
 };
 
 void cpu();

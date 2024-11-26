@@ -8,8 +8,22 @@ void ld(uint8_t *r, uint16_t value)
     *r = value; // Put value into r
 }
 
+<<<<<<< Updated upstream
+=======
+void ld_n(uint8_t *r, uint16_t value)
+{
+    *r = memory_read(value); // Put value into r
+}
+
+void ld_nn(uint16_t *r, uint16_t *pc)
+{
+    uint16_t nn = memory_read((*pc)++) | (memory_read((*pc)++) << 8);
+    *r = nn;
+}
+
+>>>>>>> Stashed changes
 // LD r1,r2 (page 66)
-void ld_r1_r2(void *r1, uint8_t size, uint8_t r2)
+void ld_r1_r2(void *r1, uint8_t r2, uint8_t size)
 {
     if (size == 8)
     {
@@ -23,6 +37,106 @@ void ld_r1_r2(void *r1, uint8_t size, uint8_t r2)
     }
 }
 
+<<<<<<< Updated upstream
+=======
+// TODO done
+void add(void *r, uint16_t value, uint8_t size, uint8_t *flags)
+{
+    if (size == 8)
+    {
+        uint8_t *r8 = (uint8_t *)r;
+        *r8 += value; // Add value to r
+        if (*r8 == 0)
+        {
+            *flags |= FLAG_N; // Set N
+            *flags &= ~FLAG_H; // Reset H
+        }
+    }
+    else if (size == 16)
+    {
+        uint16_t *r16 = (uint16_t *)r;
+        *r16 += value; // Add value to r
+        if (*r16 == 0)
+        {
+            *flags |= FLAG_N; // Set N
+            *flags &= ~FLAG_H; // Reset H
+        }
+    }
+}
+
+// TODO done
+void adc(uint8_t *r, uint16_t value, uint8_t *flags)
+{
+    *r += value;
+    if (*r == 0)
+    {
+        *flags |= FLAG_N; // Set N
+        *flags &= ~FLAG_H; // Reset H
+    }
+}
+
+void sub(uint8_t *r, uint16_t value, uint8_t *flags);
+void sbc(uint8_t *r, uint16_t value, uint8_t *flags);
+void and (uint8_t *r, uint16_t value, uint8_t *flags);
+void or (uint8_t *r, uint16_t value, uint8_t *flags);
+void xor (uint8_t *r, uint16_t value, uint8_t *flags);
+void cp(uint8_t *r, uint16_t value, uint8_t *flags);
+
+// INC n (page 88)
+void inc(void *n, uint8_t size, uint8_t *flags)
+{
+    if (size == 8)
+    {
+        uint8_t *n8 = (uint8_t *)n;
+        (*n8)++;
+
+        if (*n8 == 0)
+            *flags |= FLAG_Z; // Set Z if result is 0
+        *flags |= FLAG_N; // Set N
+        if (1) // TODO:
+            *flags |= FLAG_H; // Set H if carry from bit 3
+    }
+    else if (size == 16)
+    {
+        uint16_t *n16 = (uint16_t *)n;
+        (*n16)++;
+
+        if (*n16 == 0)
+            *flags |= FLAG_Z; // Set Z if result is 0
+        *flags |= FLAG_N; // Set N
+        if (1) // TODO:
+            *flags |= FLAG_H; // Set H if carry from bit 3
+    }
+}
+
+// DEC n (page 89)
+void dec(void *n, uint8_t size, uint8_t *flags)
+{
+    if (size == 8)
+    {
+        uint8_t *n8 = (uint8_t *)n;
+        (*n8)--;
+
+        if (*n8 == 0)
+            *flags |= FLAG_Z; // Set Z if result is 0
+        *flags |= FLAG_N; // Set N
+        if (1) // TODO:
+            *flags |= FLAG_H; // Set H if no borrow from bit 4
+    }
+    else if (size == 16)
+    {
+        uint16_t *n16 = (uint16_t *)n;
+        (*n16)--;
+
+        if (*n16 == 0)
+            *flags |= FLAG_Z; // Set Z if result is 0
+        *flags |= FLAG_N; // Set N
+        if (1) // TODO:
+            *flags |= FLAG_H; // Set H if no borrow from bit 4
+    }
+}
+
+>>>>>>> Stashed changes
 // SWAP n (page 94)
 void swap(void *r, uint8_t size, uint8_t *flags)
 {
@@ -33,7 +147,7 @@ void swap(void *r, uint8_t size, uint8_t *flags)
 
         *flags = 0; // Set all flag to 0
         if (*r8 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
     }
     else if (size == 16)
     {
@@ -43,51 +157,52 @@ void swap(void *r, uint8_t size, uint8_t *flags)
 
         *flags = 0; // Set all flag to 0
         if (*r16 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
     }
 }
 
 // DAA (page 95)
 void dda(uint8_t *a, uint8_t *flags)
 {
-    uint8_t old_cr = (*flags & 0x10) >> 4; // Recover the old Carry flag (bit 4)
+    uint8_t old_cr =
+        (*flags & FLAG_C) >> 4; // Recover the old Carry flag (bit 4)
 
-    if ((*a & 0x0F) > 9 || (*flags & 0x20))
+    if ((*a & 0x0F) > 9 || (*flags & FLAG_H))
         *a += 0x06; // Add 0x06 to adjust the lower nibble
 
     if (*a > 0x99 || old_cr)
     {
         *a += 0x60; // Add 0x60 to adjust the higher nibble
-        *flags |= 0x10; // Set C flag if A is greater than 99 or carry is set
+        *flags |= FLAG_C; // Set C flag if A is greater than 99 or carry is set
     }
 
     if (*a == 0)
-        *flags |= 0x80; // Set Z if a is 0
-    *flags &= ~0x20; // Reset H
+        *flags |= FLAG_Z; // Set Z if a is 0
+    *flags &= ~FLAG_H; // Reset H
 }
 
 // CPL (page 95)
 void cpl(uint8_t *a, uint8_t *flags)
 {
     *a = ~(*a); // Flip all A bits
-    *flags |= 0x40; // Set N
-    *flags |= 0x20; // Set H
+    *flags |= FLAG_N; // Set N
+    *flags |= FLAG_H; // Set H
 }
 
 // CCF (page 96)
 void ccf(uint8_t *flags)
 {
-    *flags &= ~0x40; // Reset N
-    *flags &= ~0x20; // Reset H
-    *flags ^= 0x10; // Complement C
+    *flags &= ~FLAG_N; // Reset N
+    *flags &= ~FLAG_H; // Reset H
+    *flags ^= FLAG_C; // Complement C
 }
 
 // SCF (page 96)
 void scf(uint8_t *flags)
 {
-    *flags &= ~0x40; // Reset N
-    *flags &= ~0x20; // Reset H
-    *flags |= 0x10; // Set C
+    *flags &= ~FLAG_N; // Reset N
+    *flags &= ~FLAG_H; // Reset H
+    *flags |= FLAG_C; // Set C
 }
 
 // NOP (page 97)
@@ -133,9 +248,9 @@ void rlc(void *n, uint8_t size, uint8_t *flags)
         *n8 = (*n8 << 1) | msb; // Rotate n left, put old MSB in bit 0
 
         if (*n8 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (msb)
-            *flags |= 0x10; // Set C if MSB was 1
+            *flags |= FLAG_C; // Set C if MSB was 1
     }
     else if (size == 16)
     {
@@ -145,12 +260,12 @@ void rlc(void *n, uint8_t size, uint8_t *flags)
         *n16 = (*n16 << 1) | msb; // Rotate n left, put old MSB in bit 0
 
         if (*n16 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (msb)
-            *flags |= 0x10; // Set C if MSB was 1
+            *flags |= FLAG_C; // Set C if MSB was 1
     }
-    *flags &= ~0x40; // Reset N
-    *flags &= ~0x20; // Reset H
+    *flags &= ~FLAG_N; // Reset N
+    *flags &= ~FLAG_H; // Reset H
 }
 
 // RL n (page 101)
@@ -162,14 +277,14 @@ void rl(void *n, uint8_t size, uint8_t *flags)
         uint8_t msb = *n8 >> 7; // Recover MSB (bit 7)
 
         uint8_t cr =
-            (*flags & 0x10) >> 4; // Recover the current Carry flag (bit 4)
+            (*flags & FLAG_C) >> 4; // Recover the current Carry flag (bit 4)
         *n8 = (*n8 << 1)
             | cr; // Rotate n left through Carry, put old MSB in bit 0
 
         if (*n8 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (msb)
-            *flags |= 0x10; // Set C if MSB was 1
+            *flags |= FLAG_C; // Set C if MSB was 1
     }
     else if (size == 16)
     {
@@ -177,17 +292,17 @@ void rl(void *n, uint8_t size, uint8_t *flags)
         uint16_t msb = *n16 >> 15; // Recover MSB (bit 15)
 
         uint8_t cr =
-            (*flags & 0x10) >> 4; // Recover the current Carry flag (bit 4)
+            (*flags & FLAG_C) >> 4; // Recover the current Carry flag (bit 4)
         *n16 = (*n16 << 1)
             | cr; // Rotate n left through Carry, put old MSB in bit 0
 
         if (*n16 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (msb)
-            *flags |= 0x10; // Set C if MSB is 1
+            *flags |= FLAG_C; // Set C if MSB is 1
     }
-    *flags &= ~0x40; // Reset N
-    *flags &= ~0x20; // Reset H
+    *flags &= ~FLAG_N; // Reset N
+    *flags &= ~FLAG_H; // Reset H
 }
 
 // RRC n (page 102)
@@ -202,9 +317,9 @@ void rrc(void *n, uint8_t size, uint8_t *flags)
             (*n8 >> 1) | (lsb << 7); // Rotate n right, put the old LSB in bit 7
 
         if (*n8 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (lsb)
-            *flags |= 0x10; // Set C if LSB was 1
+            *flags |= FLAG_C; // Set C if LSB was 1
     }
     else if (size == 16)
     {
@@ -215,12 +330,12 @@ void rrc(void *n, uint8_t size, uint8_t *flags)
             | (lsb << 15); // Rotate n right, put the old LSB in bit 15
 
         if (*n16 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (lsb)
-            *flags |= 0x10; // Set C if LSB was 1
+            *flags |= FLAG_C; // Set C if LSB was 1
     }
-    *flags &= ~0x40; // Reset N
-    *flags &= ~0x20; // Reset H
+    *flags &= ~FLAG_N; // Reset N
+    *flags &= ~FLAG_H; // Reset H
 }
 
 // RR n (page 102)
@@ -232,14 +347,14 @@ void rr(void *n, uint8_t size, uint8_t *flags)
         uint8_t lsb = *n8 & 1; // Recover LSB (bit 0)
 
         uint8_t cr =
-            (*flags & 0x10) >> 4; // Recover the current Carry flag (bit 4)
+            (*flags & FLAG_C) >> 4; // Recover the current Carry flag (bit 4)
         *n8 = (*n8 >> 1)
             | (cr << 7); // Rotate n right through Carry, put old LSB in bit 7
 
         if (*n8 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (lsb)
-            *flags |= 0x10; // Set C if LSB was 1
+            *flags |= FLAG_C; // Set C if LSB was 1
     }
     else if (size == 16)
     {
@@ -247,17 +362,17 @@ void rr(void *n, uint8_t size, uint8_t *flags)
         uint16_t lsb = *n16 & 1; // Recover LSB (bit 0)
 
         uint16_t cr =
-            (*flags & 0x10) >> 4; // Recover the current Carry flag (bit 4)
-        *n16 = (*n16 >> 1)
-            | (cr << 15); // Rotate n right through Carry, put old LSB in bit 15
+            (*flags & FLAG_C) >> 4; // Recover the current Carry flag (bit 4)
+        *n16 = (*n16 >> 1) | (cr << 15); // Rotate n right through Carry,
+                                         // put old LSB in bit 15
 
         if (*n16 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (lsb)
-            *flags |= 0x10; // Set C if LSB was 1
+            *flags |= FLAG_C; // Set C if LSB was 1
     }
-    *flags &= ~0x40; // Reset N
-    *flags &= ~0x20; // Reset H
+    *flags &= ~FLAG_N; // Reset N
+    *flags &= ~FLAG_H; // Reset H
 }
 
 // SLA n (page 105)
@@ -271,9 +386,9 @@ void sla(void *n, uint8_t size, uint8_t *flags)
         *n8 = (*n8 << 1); // Shift n left
 
         if (*n8 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (msb)
-            *flags |= 0x10; // Set C if MSB was 1
+            *flags |= FLAG_C; // Set C if MSB was 1
     }
     else if (size == 16)
     {
@@ -283,12 +398,12 @@ void sla(void *n, uint8_t size, uint8_t *flags)
         *n16 = (*n16 << 1); // Shift n left
 
         if (*n16 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (msb)
-            *flags |= 0x10; // Set C if MSB was 1
+            *flags |= FLAG_C; // Set C if MSB was 1
     }
-    *flags &= ~0x40; // Reset N
-    *flags &= ~0x20; // Reset H
+    *flags &= ~FLAG_N; // Reset N
+    *flags &= ~FLAG_H; // Reset H
 }
 
 // SRA n (Shift Right Arithmetic)
@@ -304,9 +419,9 @@ void sra(void *n, uint8_t size, uint8_t *flags)
 
         *flags = 0; // Reset all flags
         if (*n8 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (lsb)
-            *flags |= 0x10; // Set C if LSB was 1
+            *flags |= FLAG_C; // Set C if LSB was 1
     }
     else if (size == 16)
     {
@@ -318,9 +433,9 @@ void sra(void *n, uint8_t size, uint8_t *flags)
 
         *flags = 0; // Reset all flags
         if (*n16 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (lsb)
-            *flags |= 0x10; // Set C if LSB was 1
+            *flags |= FLAG_C; // Set C if LSB was 1
     }
 }
 
@@ -336,9 +451,9 @@ void srl(void *n, uint8_t size, uint8_t *flags)
 
         *flags = 0; // Reset all flags
         if (*n8 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (lsb)
-            *flags |= 0x10; // Set C if LSB was 1
+            *flags |= FLAG_C; // Set C if LSB was 1
     }
     else if (size == 16)
     {
@@ -349,9 +464,9 @@ void srl(void *n, uint8_t size, uint8_t *flags)
 
         *flags = 0; // Reset all flags
         if (*n16 == 0)
-            *flags |= 0x80; // Set Z if result is 0
+            *flags |= FLAG_Z; // Set Z if result is 0
         if (lsb)
-            *flags |= 0x10; // Set C if LSB was 1
+            *flags |= FLAG_C; // Set C if LSB was 1
     }
 }
 
@@ -362,18 +477,18 @@ void bit(uint8_t b, void *r, uint8_t size, uint8_t *flags)
     {
         uint8_t *r8 = (uint8_t *)r;
         ((*r8 >> b) & 1)
-            ? (*flags &= ~0x80)
-            : (*flags |= 0x80); // Set Z if bit b of register r is 0
+            ? (*flags &= ~FLAG_Z)
+            : (*flags |= FLAG_Z); // Set Z if bit b of register r is 0
     }
     else if (size == 16)
     {
         uint16_t *r16 = (uint16_t *)r;
         ((*r16 >> b) & 1)
-            ? (*flags &= ~0x80)
-            : (*flags |= 0x80); // Set Z if bit b of register r is 0
+            ? (*flags &= ~FLAG_Z)
+            : (*flags |= FLAG_Z); // Set Z if bit b of register r is 0
     }
-    *flags &= ~0x40; // Reset N
-    *flags |= 0x20; // Set H
+    *flags &= ~FLAG_N; // Reset N
+    *flags |= FLAG_H; // Set H
 }
 
 // SET b,r (page 109)
