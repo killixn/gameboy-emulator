@@ -7,6 +7,8 @@
 
 void ld(uint8_t *r, uint16_t value);
 void ld_r1_r2(void *r1, uint8_t size, uint8_t r2);
+void ld_nn(uint16_t *r, uint16_t value1, uint16_t value2);
+void ld_n(uint8_t *r, uint16_t value);
 
 void ld(uint8_t *r, uint16_t value);
 void ld_r1_r2(void *r1, uint8_t r2, uint8_t size);
@@ -25,7 +27,6 @@ void cp(uint8_t *r, uint16_t value, uint8_t *flags);
 
 void inc(void *n, uint8_t size, uint8_t *flags);
 void dec(void *n, uint8_t size, uint8_t *flags);
->>>>>>> Stashed changes
 
 void swap(void *r, uint8_t size, uint8_t *flags);
 void dda(uint8_t *a, uint8_t *flags);
@@ -51,18 +52,10 @@ void bit(uint8_t b, void *r, uint8_t size, uint8_t *flags);
 void set(uint8_t b, void *r, uint8_t size);
 void res(uint8_t b, void *r, uint8_t size);
 
-void jp(uint16_t *pc);
 void jp_hl(uint16_t *pc, uint16_t *hl);
-void jr(uint16_t *pc);
 
 void call(uint16_t *pc, uint16_t *sp);
-<<<<<<< Updated upstream
-
 void rst(uint8_t opcode, uint16_t *pc, uint16_t *sp);
-
-=======
-void rst(uint8_t opcode, uint16_t *pc, uint16_t *sp);
->>>>>>> Stashed changes
 void ret(uint16_t *pc, uint16_t *sp);
 
 #endif /* !INSTRUCT_H */

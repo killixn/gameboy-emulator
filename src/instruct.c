@@ -1,10 +1,10 @@
 #include "instruct.h"
 
-<<<<<<< HEAD
-#include "memory.h"
-=======
 #include <stdint.h>
->>>>>>> fc02bd0 (feat(cpu): update)
+
+#include "memory.h"
+
+#include <stdint.h>
 
 // LD nn,n (page 65)
 void ld(uint8_t *r, uint16_t value)
