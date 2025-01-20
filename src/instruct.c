@@ -4,8 +4,6 @@
 
 #include "memory.h"
 
-#include <stdint.h>
-
 // LD nn,n (page 65)
 void ld(uint8_t *r, uint16_t value)
 {
@@ -73,12 +71,13 @@ void adc(uint8_t *r, uint16_t value, uint8_t *flags)
     }
 }
 
+// TODO:
 void sub(uint8_t *r, uint16_t value, uint8_t *flags);
 void sbc(uint8_t *r, uint16_t value, uint8_t *flags);
-void and (uint8_t *r, uint16_t value, uint8_t *flags);
-void or (uint8_t *r, uint16_t value, uint8_t *flags);
-void xor (uint8_t *r, uint16_t value, uint8_t *flags);
-void cp(uint8_t *r, uint16_t value, uint8_t *flags);
+void funcAnd(uint8_t *r, uint16_t value, uint8_t *flags);
+void funcOr(uint8_t *r, uint16_t value, uint8_t *flags);
+void funcXor(uint8_t *r, uint16_t value, uint8_t *flags);
+void funcCp(uint8_t *r, uint16_t value, uint8_t *flags);
 
 void add_16(uint16_t *r, uint16_t value, uint8_t *flags);
 void inc_16(uint16_t *r);

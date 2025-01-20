@@ -3,12 +3,12 @@
 
 #include <stdint.h>
 
-#include_next "memory.h"
+#include "memory.h"
 
-void ld(uint8_t *r, uint16_t value);
-void ld_r1_r2(void *r1, uint8_t size, uint8_t r2);
-void ld_nn(uint16_t *r, uint16_t value1, uint16_t value2);
-void ld_n(uint8_t *r, uint16_t value);
+#define FLAG_Z 0x80
+#define FLAG_N 0x40
+#define FLAG_H 0x20
+#define FLAG_C 0x10
 
 void ld(uint8_t *r, uint16_t value);
 void ld_r1_r2(void *r1, uint8_t r2, uint8_t size);
@@ -20,10 +20,10 @@ void adc(uint8_t *r, uint16_t value, uint8_t *flags);
 void sub(uint8_t *r, uint16_t value, uint8_t *flags);
 void sbc(uint8_t *r, uint16_t value, uint8_t *flags);
 
-void and (uint8_t *r, uint16_t value, uint8_t *flags);
-void or (uint8_t *r, uint16_t value, uint8_t *flags);
-void xor (uint8_t *r, uint16_t value, uint8_t *flags);
-void cp(uint8_t *r, uint16_t value, uint8_t *flags);
+void funcAnd(uint8_t *r, uint16_t value, uint8_t *flags);
+void funcOr(uint8_t *r, uint16_t value, uint8_t *flags);
+void funcXor(uint8_t *r, uint16_t value, uint8_t *flags);
+void funcCp(uint8_t *r, uint16_t value, uint8_t *flags);
 
 void inc(void *n, uint8_t size, uint8_t *flags);
 void dec(void *n, uint8_t size, uint8_t *flags);
@@ -52,6 +52,8 @@ void bit(uint8_t b, void *r, uint8_t size, uint8_t *flags);
 void set(uint8_t b, void *r, uint8_t size);
 void res(uint8_t b, void *r, uint8_t size);
 
+void jp(uint16_t *pc);
+void jr(uint16_t *pc);
 void jp_hl(uint16_t *pc, uint16_t *hl);
 
 void call(uint16_t *pc, uint16_t *sp);

@@ -24,6 +24,7 @@ struct cpu_register
     Register HL;
     Register SP; // Stack pointer
     Register PC; // Programme counter
+    u_int8_t flags_register;
 };
 
 void cpu();
