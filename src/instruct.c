@@ -35,7 +35,6 @@ void ld_r1_r2(void *r1, uint8_t r2, uint8_t size)
     }
 }
 
-// TODO done
 void add(void *r, uint16_t value, uint8_t size, uint8_t *flags)
 {
     if (size == 8)
@@ -60,7 +59,6 @@ void add(void *r, uint16_t value, uint8_t size, uint8_t *flags)
     }
 }
 
-// TODO done
 void adc(uint8_t *r, uint16_t value, uint8_t *flags)
 {
     *r += value;
@@ -71,17 +69,86 @@ void adc(uint8_t *r, uint16_t value, uint8_t *flags)
     }
 }
 
-// TODO:
-void sub(uint8_t *r, uint16_t value, uint8_t *flags);
-void sbc(uint8_t *r, uint16_t value, uint8_t *flags);
-void funcAnd(uint8_t *r, uint16_t value, uint8_t *flags);
-void funcOr(uint8_t *r, uint16_t value, uint8_t *flags);
-void funcXor(uint8_t *r, uint16_t value, uint8_t *flags);
-void funcCp(uint8_t *r, uint16_t value, uint8_t *flags);
+// page (82)
+void sub(uint8_t *r, uint16_t value, uint8_t *flags)
+{
+    if (*r >= value)
+        *flags |= FLAG_C; // Set C if borrow from MSB
 
-void add_16(uint16_t *r, uint16_t value, uint8_t *flags);
-void inc_16(uint16_t *r);
-void dec_16(uint16_t *r);
+    *r -= value;
+    if (*r == 0)
+        *flags |= FLAG_Z; // Set Z
+    *flags |= FLAG_N; // Set N
+    if (((*r & 0x0F) - 1) >= 0x00)
+        *flags |= FLAG_H; // Set H if no borrow from bit 4
+}
+
+void sbc(uint8_t *r, uint16_t value, uint8_t *flags)
+{
+    uint8_t carry = (*flags & FLAG_C) ? 1 : 0;
+
+    if (*r >= value + carry)
+        *flags |= FLAG_C; // Set C if borrow from MSB
+
+    *r -= value;
+    if (*r == 0)
+        *flags |= FLAG_Z; // Set Z
+    *flags |= FLAG_N; // Set N
+    if (((*r & 0x0F) - 1) >= 0x00)
+        *flags |= FLAG_H; // Set H if no borrow from bit 4
+}
+
+void funcAnd(uint8_t *r, uint16_t value, uint8_t *flags)
+{
+    *r = *r & value;
+
+    if (*r == 0)
+        *flags |= FLAG_Z; // Set Z
+
+    *flags &= ~FLAG_N; // Reset N pour les opérations logique
+    *flags |= FLAG_H; // Set H
+    *flags &= ~FLAG_C; // Reset C
+}
+
+void funcOr(uint8_t *r, uint16_t value, uint8_t *flags)
+{
+    *r = *r | value;
+
+    if (*r == 0)
+        *flags |= FLAG_Z; // Set Z
+
+    *flags &= ~FLAG_N; // Reset N pour les opérations logique
+    *flags &= ~FLAG_H; // Reset H
+    *flags &= ~FLAG_C; // Reset C
+}
+
+void funcXor(uint8_t *r, uint16_t value, uint8_t *flags)
+{
+    *r = *r ^ value;
+
+    if (*r == 0)
+        *flags |= FLAG_Z; // Set Z
+
+    *flags &= ~FLAG_N; // Reset N pour les opérations logique
+    *flags &= ~FLAG_H; // Reset H
+    *flags &= ~FLAG_C; // Reset C
+}
+
+void funcCp(uint8_t *r, uint16_t value, uint8_t *flags)
+{
+    uint8_t result = *r - value;
+
+    if (*r == value)
+        *flags |= FLAG_Z; // Set Z
+
+    *flags |= FLAG_N; // Set N
+
+    if ((result & 0x0F) > 0x0F)
+        *flags |= FLAG_H; // Set H if carry from bit 4
+
+    if (*r < value)
+        *flags |= FLAG_C; // Set C
+}
 
 void inc(void *n, uint8_t size, uint8_t *flags)
 {
@@ -92,8 +159,8 @@ void inc(void *n, uint8_t size, uint8_t *flags)
 
         if (*n8 == 0)
             *flags |= FLAG_Z; // Set Z if result is 0
-        *flags |= FLAG_N; // Set N
-        if (1) // TODO:
+        *flags &= ~FLAG_N; // Reset N
+        if (((*n8 & 0x0F) + 1) > 0x0F)
             *flags |= FLAG_H; // Set H if carry from bit 3
     }
     else if (size == 16)
@@ -103,8 +170,8 @@ void inc(void *n, uint8_t size, uint8_t *flags)
 
         if (*n16 == 0)
             *flags |= FLAG_Z; // Set Z if result is 0
-        *flags |= FLAG_N; // Set N
-        if (1) // TODO:
+        *flags &= ~FLAG_N; // Reset N
+        if (((*n16 & 0x0F) + 1) > 0x0F)
             *flags |= FLAG_H; // Set H if carry from bit 3
     }
 }
@@ -112,6 +179,7 @@ void inc(void *n, uint8_t size, uint8_t *flags)
 // DEC n (page 89)
 void dec(void *n, uint8_t size, uint8_t *flags)
 {
+    *flags |= FLAG_N; // set N flag
     if (size == 8)
     {
         uint8_t *n8 = (uint8_t *)n;
@@ -119,8 +187,7 @@ void dec(void *n, uint8_t size, uint8_t *flags)
 
         if (*n8 == 0)
             *flags |= FLAG_Z; // Set Z if result is 0
-        *flags |= FLAG_N; // Set N
-        if (1) // TODO:
+        if (((*n8 & 0x0F) - 1) < 0x00)
             *flags |= FLAG_H; // Set H if no borrow from bit 4
     }
     else if (size == 16)
@@ -130,8 +197,7 @@ void dec(void *n, uint8_t size, uint8_t *flags)
 
         if (*n16 == 0)
             *flags |= FLAG_Z; // Set Z if result is 0
-        *flags |= FLAG_N; // Set N
-        if (1) // TODO:
+        if (((*n16 & 0x0F) - 1) < 0x00)
             *flags |= FLAG_H; // Set H if no borrow from bit 4
     }
 }
