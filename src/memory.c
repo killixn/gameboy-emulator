@@ -2,18 +2,14 @@
 
 #include "memory.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "rom.h"
 
-struct memory *gb_memory;
+static struct memory *gb_memory;
 
 int memory_init(void)
 {
     // Retrieve ROM data
-    unsigned char *rom_data = rom_getdata();
+    uint8_t *rom_data = rom_getdata();
 
     // Allocate memory for the main memory structure
     gb_memory = malloc(sizeof(struct memory));
@@ -47,7 +43,7 @@ int memory_init(void)
     return EXIT_SUCCESS;
 }
 
-unsigned char memory_read(struct memory *gb_memory, size_t address)
+uint8_t memory_read(size_t address)
 {
     if (address < 0x4000)
         return gb_memory->rom0[address];
@@ -73,7 +69,7 @@ unsigned char memory_read(struct memory *gb_memory, size_t address)
     return 0xFF;
 }
 
-void memory_write(struct memory *gb_memory, size_t address, size_t value)
+void memory_write(size_t address, u_int8_t value)
 {
     if (address >= 0x8000 && address < 0xA000)
         gb_memory->vram[address - 0x8000] = value;

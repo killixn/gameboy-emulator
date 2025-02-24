@@ -1,9 +1,11 @@
 // Main entry point of the emulator, manages the emulation loop.
 
 #include <SDL2/SDL.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cpu.h"
 #include "memory.h"
 #include "rom.h"
 #include "sdl.h"
@@ -56,9 +58,25 @@ int main(int argc, char *argv[])
     // Main loop
     int quit = 0;
     SDL_Event event;
+
+    // start cpu
+    init_cpu();
+
+    // declare cpu_clock
+
+    u_int8_t cpu_clock;
+
     while (!quit)
     {
         // Execute a CPU cycle
+        // 4 cpu cycle for 1 scree cycle
+        cpu_clock = 1;
+        while (cpu_clock % 4 != 0)
+        {
+            cpu();
+            cpu_clock++;
+        }
+
         // Handle any pending interrupts
         // Update internal timers
         // Render the display (LCD)
