@@ -1,10 +1,15 @@
 CC = gcc
 CFLAGS = -Wvla -Wextra -Wall -Werror -g -fsanitize=address
-SDLFLAGS = -I/usr/local/include/SDL2 -L/usr/local/lib -lSDL2
+SDLFLAGS = -I/opt/homebrew/include/SDL2 -L/opt/homebrew/lib -lSDL2
 OBJ = src/main.c src/rom.c src/memory.c src/sdl.c src/cpu.c src/instruct.c
 
-all:
+all: gameboy
+
+gameboy: $(OBJ)
 	$(CC) $(CFLAGS) $(SDLFLAGS) -o gameboy $(OBJ)
 
+debug: CFLAGS += -DDEBUG
+debug: clean all
+
 clean:
-	rm -rf gameboy*
+	rm -rf gameboy *.o src/*.o

@@ -1022,13 +1022,17 @@ void exec_opcode(uint8_t opcode)
             break;
         default:
             fprintf(stderr, "error: opcode not recognised\n");
+#ifndef DEBUG
             abort(); // if opcode is not recognised, stop the programme
+#endif
         }
     }
 
     default:
         fprintf(stderr, "error: opcode not recognised\n");
+#ifndef DEBUG
         abort(); // if opcode is not recognised, stop the programme
+#endif
     }
 }
 

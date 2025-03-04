@@ -26,6 +26,10 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+#ifdef DEBUG
+    printf("DEBUG Mode\n\n");
+#endif
+
     // Load the ROM file into memory
     error_occur = rom_load(argv[1]);
     if (error_occur)
