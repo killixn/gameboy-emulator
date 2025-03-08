@@ -1,7 +1,6 @@
 // Main entry point of the emulator, manages the emulation loop.
 
 #include <SDL2/SDL.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -46,36 +45,38 @@ int main(int argc, char *argv[])
 
     printf("\nMemory successfully initialized\n");
 
-    error_occur = sdl_init(&window, &renderer);
-    if (error_occur)
-    {
-        fprintf(stderr, "error: %s: unable to initialize SDL\n", argv[1]);
-        return EXIT_FAILURE;
-    }
+    // error_occur = sdl_init(&window, &renderer);
+    // if (error_occur)
+    //{
+    //     fprintf(stderr, "error: %s: unable to initialize SDL\n", argv[1]);
+    //     return EXIT_FAILURE;
+    // }
 
-    printf("\nSDL successfully initialized\n");
+    // printf("\nSDL successfully initialized\n");
 
     // Main loop
     int quit = 0;
-    SDL_Event event;
+    // SDL_Event event;
 
     // start cpu
     init_cpu();
 
     // declare cpu_clock
 
-    u_int8_t cpu_clock;
+    // u_int8_t cpu_clock;
+
+    int count = 0;
 
     while (!quit)
     {
+        if (count >= 100)
+            break;
+
+        count++;
         // Execute a CPU cycle
         // 4 cpu cycle for 1 scree cycle
-        cpu_clock = 1;
-        while (cpu_clock % 4 != 0)
-        {
-            cpu();
-            cpu_clock++;
-        }
+
+        cpu();
 
         // Handle any pending interrupts
         // Update internal timers
@@ -83,16 +84,16 @@ int main(int argc, char *argv[])
         // Process user input events
 
         // Handle events
-        while (SDL_PollEvent(&event) != 0)
-        {
-            if (event.type == SDL_QUIT)
-                quit = 1;
-            else if (event.type == SDL_KEYDOWN)
-            {
-                if (event.key.keysym.sym == SDLK_ESCAPE)
-                    quit = 1;
-            }
-        }
+        // while (SDL_PollEvent(&event) != 0)
+        //{
+        //    if (event.type == SDL_QUIT)
+        //        quit = 1;
+        //    else if (event.type == SDL_KEYDOWN)
+        //    {
+        //        if (event.key.keysym.sym == SDLK_ESCAPE)
+        //            quit = 1;
+        //    }
+        //}
 
         SDL_RenderClear(renderer); // Clear the screen
         SDL_RenderPresent(renderer); // Update the screen

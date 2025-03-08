@@ -19,8 +19,8 @@ int memory_init(void)
         return EXIT_FAILURE;
     }
 
-    gb_memory->rom0 = malloc(0x4000); // Fixed ROM bank (16KB)
-    gb_memory->romx = malloc(0x4000); // Switchable ROM bank (16KB)
+    gb_memory->rom0 = calloc(0x4000, 1); // Fixed ROM bank (16KB)
+    gb_memory->romx = calloc(0x4000, 1); // Switchable ROM bank (16KB)
     if (!gb_memory->rom0 || !gb_memory->romx)
     {
         fprintf(stderr, "error: failed to allocate ROM memory\n");

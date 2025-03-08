@@ -2,6 +2,8 @@
 
 #include "cpu.h"
 
+#include <stdio.h>
+
 #include "instruct.h"
 #include "memory.h"
 
@@ -10,6 +12,14 @@ extern struct rom rom;
 
 // init static cpu register
 static struct cpu_register cpu_register;
+
+void cpu_debug_print()
+{
+    printf("PC: %04X AF: %04X, BC: %04X, DE: %04X, HL: %04X, SP: "
+           "%04X\n",
+           cpu_register.PC.reg16, cpu_register.AF.reg16, cpu_register.BC.reg16,
+           cpu_register.DE.reg16, cpu_register.HL.reg16, cpu_register.SP.reg16);
+}
 
 // function to execute all the opcode
 void exec_opcode(uint8_t opcode)
@@ -1021,31 +1031,35 @@ void exec_opcode(uint8_t opcode)
             res(val, reg_ptr, reg_size);
             break;
         default:
-            fprintf(stderr, "error: opcode not recognised\n");
+            fprintf(stderr, "error: opcode not recognised in 0xCB : %x \n",
+                    cb_opcode);
             abort(); // if opcode is not recognised, stop the programme
         }
     }
+    break;
 
     default:
-        fprintf(stderr, "error: opcode not recognised\n");
+        fprintf(stderr, "error: opcode not recognised : %x \n", opcode);
         abort(); // if opcode is not recognised, stop the programme
     }
 }
 
 void init_cpu()
 {
-    cpu_register.AF.reg16 = 0;
-    cpu_register.BC.reg16 = 0;
-    cpu_register.DE.reg16 = 0;
-    cpu_register.HL.reg16 = 0;
-    cpu_register.SP.reg16 = 0;
-    cpu_register.PC.reg16 = 0x100;
+    cpu_register.AF.reg16 = 0x01B0;
+    cpu_register.BC.reg16 = 0x0013;
+    cpu_register.DE.reg16 = 0x00D8;
+    cpu_register.HL.reg16 = 0x014D;
+    cpu_register.SP.reg16 = 0xFFFE;
+    cpu_register.PC.reg16 = 0x0100;
 }
 
 // main cpu fonction
 void cpu()
 {
     // get and exec next opcode from the rom
+    cpu_debug_print();
     uint8_t opcode = memory_read(cpu_register.PC.reg16++);
+    printf("opcode : %x\n", opcode);
     exec_opcode(opcode);
 }
