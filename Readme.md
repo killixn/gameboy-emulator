@@ -1,5 +1,27 @@
 # Game Boy Emulator
 
+```
+ _n_________________
+|_|_______________|_|
+|  ,-------------.  |
+| |  .---------.  | |
+| |  |         |  | |
+| |  |         |  | |
+| |  |         |  | |
+| |  |         |  | |
+| |  `---------'  | |
+| `---------------' |
+|   _ GAME BOY      |
+| _| |_         ,-. |
+||_ O _|   ,-. "._,"|
+|  |_|    "._,"   A | 
+|    _  _    B      | 
+|   // //           |
+|  // //    \\\\\\  |
+|  `  `      \\\\\\ ,
+|________...______,"
+```
+
 ## Description
 Un émulateur Game Boy en C qui reproduit le CPU, la mémoire, les graphismes, et le son pour exécuter des jeux Game Boy (.gb) sur mac arm.
 
